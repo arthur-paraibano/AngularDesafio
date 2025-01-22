@@ -25,7 +25,7 @@ export class HomeComponent implements OnInit {
   }
 
   preencherTabela() {
-    const tabela = document.getElementById('tabelaPessoas')?.getElementsByTagName('tbody')[0];
+    const tabela = document.getElementById('pesquisarNome')?.getElementsByTagName('tbody')[0];
     if (tabela) {
       tabela.innerHTML = '';
       const pessoasToShow = this.pessoas.slice(0, 3);
@@ -56,7 +56,7 @@ export class HomeComponent implements OnInit {
     const altura = parseFloat((document.getElementById('altura') as HTMLInputElement).value);
     const peso = parseFloat((document.getElementById('peso') as HTMLInputElement).value);
     const sexo = (document.getElementById('sexo') as HTMLSelectElement).value;
-  
+
     if (!nome || !dataNasc || !cpf || !altura || !peso || !sexo) {
       document.getElementById('erro')!.innerText = "Preencha todos os campos!";
       return;
@@ -70,7 +70,7 @@ export class HomeComponent implements OnInit {
       peso,
       sexo
     };
-  
+
     this.pessoaService.createPessoa(pessoa).subscribe({
       next: (response) => {
         document.getElementById('resultado')!.innerText = "Pessoa incluída com sucesso!";
@@ -88,7 +88,7 @@ export class HomeComponent implements OnInit {
 
   pesquisar() {
     const nome = (document.getElementById('pesquisarNome') as HTMLInputElement).value;
-    
+
     const pessoa = {
       nome
     }

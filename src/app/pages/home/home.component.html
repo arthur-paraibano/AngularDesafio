@@ -47,25 +47,13 @@
             <div class="form-group">
                 <label for="sexo">Sexo:</label>
                 <select id="sexo" name="sexo" required>
+                    <option value=""> </option>
                     <option value="M">Masculino</option>
                     <option value="F">Feminino</option>
                 </select>
             </div>
 
-            <!-- Tabela de pessoas cadastradas -->
-            <table id="tabelaPessoas" border="1" style="margin-bottom: 20px;">
-                <thead>
-                    <tr>
-                        <th style="display:none;">ID</th>
-                        <th>Nome</th>
-                        <th>Sexo</th>
-                        <th>Peso</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- As pessoas cadastradas irão aparecer aqui -->
-                </tbody>
-            </table>
+            <hr>
 
             <div class="button-group">
                 <button type="button" (click)="incluir()">Incluir</button>
