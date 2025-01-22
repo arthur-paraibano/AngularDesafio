@@ -9,6 +9,7 @@ import { PessoaServiceService } from '../../services/pessoa.service';
 export class HomeComponent implements OnInit {
 
   pessoas: any[] = [];
+  filteredNomes: string[] = [];
 
   constructor(private pessoaService: PessoaServiceService) {}
 
@@ -16,7 +17,7 @@ export class HomeComponent implements OnInit {
     this.pessoaService.getAllPessoas().subscribe({
       next: (data) => {
         this.pessoas = data;
-        this.preencherTabela();
+        this.preencherPesquisar();
       },
       error: (error) => {
         console.error('Erro ao carregar pessoas:', error);
@@ -24,29 +25,26 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  preencherTabela() {
-    const tabela = document.getElementById('pesquisarNome')?.getElementsByTagName('tbody')[0];
-    if (tabela) {
-      tabela.innerHTML = '';
-      const pessoasToShow = this.pessoas.slice(0, 3);
+  preencherPesquisar() {
+    const nomes = this.pessoas.map(pessoa => pessoa.nome);
+    this.filteredNomes = nomes;
+  }
 
-      pessoasToShow.forEach(pessoa => {
-        const novaLinha = tabela.insertRow();
-
-        const idCell = novaLinha.insertCell(0);
-        idCell.style.display = "none";
-        idCell.textContent = pessoa.id;
-
-        const nomeCell = novaLinha.insertCell(1);
-        nomeCell.textContent = pessoa.nome;
-
-        const sexoCell = novaLinha.insertCell(2);
-        sexoCell.textContent = pessoa.sexo;
-
-        const pesoCell = novaLinha.insertCell(3);
-        pesoCell.textContent = pessoa.peso;
-      });
+  onInputChange(event: any) {
+    const query = event.target.value.toLowerCase();
+    if (query) {
+      this.filteredNomes = this.pessoas
+        .filter(pessoa => pessoa.nome.toLowerCase().includes(query))
+        .map(pessoa => pessoa.nome)
+        .slice(0, 3); // Limita a 3 sugestões
+    } else {
+      this.filteredNomes = [];
     }
+  }
+
+  selecionarNome(nome: string) {
+    (document.getElementById('pesquisarNome') as HTMLInputElement).value = nome;
+    this.filteredNomes = [];
   }
 
   incluir() {
@@ -85,14 +83,9 @@ export class HomeComponent implements OnInit {
     });
   }
 
-
   pesquisar() {
     const nome = (document.getElementById('pesquisarNome') as HTMLInputElement).value;
-
-    const pessoa = {
-      nome
-    }
-
-    this.pessoaService.getPessoaByNome(nome)
+    const pessoa = { nome };
+    this.pessoaService.getPessoaByNome(nome);
   }
 }
