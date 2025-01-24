@@ -9,16 +9,19 @@ import { PessoaServiceService } from '../../services/pessoa.service';
 export class HomeComponent implements OnInit {
 
   pessoas: any[] = [];
+
   filteredNomes: string[] = [];
 
   constructor(private pessoaService: PessoaServiceService) {}
 
   ngOnInit(): void {
     this.pessoaService.getAllPessoas().subscribe({
-      next: (data) => {
-        this.pessoas = data;
-        this.preencherPesquisar();
-      },
+      next: (res) => console.log(res)
+      // next: (data) => {
+      //   this.pessoas = data;
+      //   this.preencherPesquisar();
+      // }
+      ,
       error: (error) => {
         console.error('Erro ao carregar pessoas:', error);
       }
@@ -36,7 +39,7 @@ export class HomeComponent implements OnInit {
       this.filteredNomes = this.pessoas
         .filter(pessoa => pessoa.nome.toLowerCase().includes(query))
         .map(pessoa => pessoa.nome)
-        .slice(0, 3); // Limita a 3 sugestões
+        .slice(0, 3);
     } else {
       this.filteredNomes = [];
     }

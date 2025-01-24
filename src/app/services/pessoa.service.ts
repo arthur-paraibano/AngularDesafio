@@ -1,18 +1,28 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { PessoaModel } from '../domain/models/PessoaModel';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PessoaServiceService {
   private baseUrl: string = "http://localhost:8080/cadastro";
+  private pessoaDado: PessoaModel | any
 
   constructor(private http: HttpClient) {}
 
-  getAllPessoas(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/all`);
+  getAllPessoas(): Observable<PessoaModel> {
+    this.pessoaDado = this
+                          .http
+                          .get<PessoaModel>
+                          (`${this.baseUrl}/all`);
+    return this.pessoaDado
   }
+
+  // getAllPessoas(): Observable<any> {
+  //   return this.http.get(`${this.baseUrl}/all`);
+  // }
 
   getPessoaById(id: number): Observable<any> {
     return this.http.get(`${this.baseUrl}/find/${id}`);
