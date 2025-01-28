@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PessoaServiceService } from '../../services/pessoa.service';
 
 @Component({
@@ -9,44 +11,58 @@ import { PessoaServiceService } from '../../services/pessoa.service';
 export class HomeComponent implements OnInit {
 
   pessoas: any[] = [];
-
   filteredNomes: string[] = [];
+  private searchTerms = new Subject<string>();
 
   constructor(private pessoaService: PessoaServiceService) {}
 
   ngOnInit(): void {
+    this.carregarPessoas();
+
+    // Configura o debounce para o campo de pesquisa
+    this.searchTerms.pipe(
+      debounceTime(300), // Aguarda 300ms após a última digitação
+      distinctUntilChanged() // Ignora se o termo não mudou
+    ).subscribe(query => {
+      this.filtrarNomes(query);
+    });
+  }
+
+  carregarPessoas() {
     this.pessoaService.getAllPessoas().subscribe({
-      next: (res) => console.log(res)
-      // next: (data) => {
-      //   this.pessoas = data;
-      //   this.preencherPesquisar();
-      // }
-      ,
+      next: (data) => {
+        this.pessoas = data;
+      },
       error: (error) => {
         console.error('Erro ao carregar pessoas:', error);
       }
     });
   }
 
-  preencherPesquisar() {
-    const nomes = this.pessoas.map(pessoa => pessoa.nome);
-    this.filteredNomes = nomes;
-  }
-
   onInputChange(event: any) {
     const query = event.target.value.toLowerCase();
+    this.searchTerms.next(query); // Envia o termo de pesquisa para o Subject
+  }
+
+  filtrarNomes(query: string) {
     if (query) {
       this.filteredNomes = this.pessoas
         .filter(pessoa => pessoa.nome.toLowerCase().includes(query))
         .map(pessoa => pessoa.nome)
         .slice(0, 3);
+
+      if (this.filteredNomes.length === 0) {
+        this.filteredNomes = ["não encontrado"];
+      }
     } else {
       this.filteredNomes = [];
     }
   }
 
   selecionarNome(nome: string) {
-    (document.getElementById('pesquisarNome') as HTMLInputElement).value = nome;
+    if (nome !== "não encontrado") {
+      (document.getElementById('pesquisarNome') as HTMLInputElement).value = nome;
+    }
     this.filteredNomes = [];
   }
 
@@ -63,21 +79,14 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-    const pessoa = {
-      nome,
-      dataNasc,
-      cpf,
-      altura,
-      peso,
-      sexo
-    };
+    const pessoa = { nome, dataNasc, cpf, altura, peso, sexo };
 
     this.pessoaService.createPessoa(pessoa).subscribe({
       next: (response) => {
         document.getElementById('resultado')!.innerText = "Pessoa incluída com sucesso!";
         document.getElementById('erro')!.innerText = "";
         (document.getElementById('pessoaForm') as HTMLFormElement).reset();
-        this.ngOnInit();
+        this.carregarPessoas(); // Recarrega a lista de pessoas
       },
       error: (error) => {
         console.error('Erro ao incluir pessoa:', error);
@@ -88,7 +97,19 @@ export class HomeComponent implements OnInit {
 
   pesquisar() {
     const nome = (document.getElementById('pesquisarNome') as HTMLInputElement).value;
-    const pessoa = { nome };
-    this.pessoaService.getPessoaByNome(nome);
+    this.pessoaService.getPessoaByNome(nome).subscribe({
+      next: (data) => {
+        if (data) {
+          this.pessoas = [data]; // Atualiza a lista de pessoas com o resultado da pesquisa
+          this.filteredNomes = [data.nome];
+        } else {
+          this.filteredNomes = ["não encontrado"];
+        }
+      },
+      error: (error) => {
+        console.error('Erro ao pesquisar pessoa:', error);
+        this.filteredNomes = ["não encontrado"];
+      }
+    });
   }
 }

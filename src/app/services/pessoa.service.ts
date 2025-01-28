@@ -12,17 +12,17 @@ export class PessoaServiceService {
 
   constructor(private http: HttpClient) {}
 
-  getAllPessoas(): Observable<PessoaModel> {
-    this.pessoaDado = this
-                          .http
-                          .get<PessoaModel>
-                          (`${this.baseUrl}/all`);
-    return this.pessoaDado
-  }
-
-  // getAllPessoas(): Observable<any> {
-  //   return this.http.get(`${this.baseUrl}/all`);
+  // getAllPessoas(): Observable<PessoaModel> {
+  //   this.pessoaDado = this
+  //                         .http
+  //                         .get<PessoaModel>
+  //                         (`${this.baseUrl}/all`);
+  //   return this.pessoaDado
   // }
+
+  getAllPessoas(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/all`);
+  }
 
   getPessoaById(id: number): Observable<any> {
     return this.http.get(`${this.baseUrl}/find/${id}`);

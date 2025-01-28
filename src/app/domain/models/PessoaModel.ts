@@ -1,9 +1,9 @@
 export type PessoaModel = {
-  id:number
-  nome:String
-  dateNasc:Date
-  cpf:String
-  sexo:String
-  altura:number
-  peso:number
+  id: number;
+  nome: string;
+  dataNasc: Date;
+  cpf: string;
+  sexo: string;
+  altura: number;
+  peso: number;
 }

@@ -15,7 +15,8 @@
         <div class="pesquisa">
           <label for="pesquisarNome">Pesquisar por Nome:</label>
           <input type="text" id="pesquisarNome" name="pesquisarNome" (input)="onInputChange($event)" placeholder="Digite o nome">
-          <ul id="nomesSugestoes" *ngIf="filteredNomes.length > 0">
+          <button type="button" class="btn-continuar" (click)="pesquisar()">Continuar</button>
+          <ul id="nomesSugestoes" [class.visible]="filteredNomes.length > 0">
             <li *ngFor="let nome of filteredNomes" (click)="selecionarNome(nome)">
               {{ nome }}
             </li>
