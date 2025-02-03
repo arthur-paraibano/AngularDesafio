@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { PessoaModel } from '../../domain/models/PessoaModel';
 import { PessoaServiceService } from '../../services/pessoa.service';
 
 @Component({
@@ -9,9 +10,14 @@ import { PessoaServiceService } from '../../services/pessoa.service';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-
-  pessoas: any[] = [];
+  pessoas: PessoaModel[] = [];
   filteredNomes: string[] = [];
+  nome: string = '';
+  dataNasc: string = '';
+  cpf: string = '';
+  altura: number | null = null;
+  peso: number | null = null;
+  sexo: string = '';
   private searchTerms = new Subject<string>();
 
   constructor(private pessoaService: PessoaServiceService) {}
@@ -19,10 +25,9 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.carregarPessoas();
 
-    // Configura o debounce para o campo de pesquisa
     this.searchTerms.pipe(
-      debounceTime(300), // Aguarda 300ms após a última digitação
-      distinctUntilChanged() // Ignora se o termo não mudou
+      debounceTime(300),
+      distinctUntilChanged()
     ).subscribe(query => {
       this.filtrarNomes(query);
     });
@@ -30,7 +35,7 @@ export class HomeComponent implements OnInit {
 
   carregarPessoas() {
     this.pessoaService.getAllPessoas().subscribe({
-      next: (data) => {
+      next: (data: PessoaModel[]) => {
         this.pessoas = data;
       },
       error: (error) => {
@@ -41,7 +46,7 @@ export class HomeComponent implements OnInit {
 
   onInputChange(event: any) {
     const query = event.target.value.toLowerCase();
-    this.searchTerms.next(query); // Envia o termo de pesquisa para o Subject
+    this.searchTerms.next(query);
   }
 
   filtrarNomes(query: string) {
@@ -61,32 +66,33 @@ export class HomeComponent implements OnInit {
 
   selecionarNome(nome: string) {
     if (nome !== "não encontrado") {
-      (document.getElementById('pesquisarNome') as HTMLInputElement).value = nome;
+      this.nome = nome;
+      this.pesquisar(nome);
     }
     this.filteredNomes = [];
   }
 
   incluir() {
-    const nome = (document.getElementById('nome') as HTMLInputElement).value;
-    const dataNasc = (document.getElementById('dataNasc') as HTMLInputElement).value;
-    const cpf = (document.getElementById('cpf') as HTMLInputElement).value;
-    const altura = parseFloat((document.getElementById('altura') as HTMLInputElement).value);
-    const peso = parseFloat((document.getElementById('peso') as HTMLInputElement).value);
-    const sexo = (document.getElementById('sexo') as HTMLSelectElement).value;
-
-    if (!nome || !dataNasc || !cpf || !altura || !peso || !sexo) {
+    if (!this.nome || !this.dataNasc || !this.cpf || !this.altura || !this.peso || !this.sexo) {
       document.getElementById('erro')!.innerText = "Preencha todos os campos!";
       return;
     }
 
-    const pessoa = { nome, dataNasc, cpf, altura, peso, sexo };
+    const pessoa: PessoaModel = {
+      id: 0, // Deixe o ID para o servidor gerar
+      nome: this.nome,
+      dataNasc: new Date(this.dataNasc),
+      cpf: this.cpf,
+      sexo: this.sexo,
+      altura: this.altura!,
+      peso: this.peso!
+    };
 
     this.pessoaService.createPessoa(pessoa).subscribe({
-      next: (response) => {
+      next: () => {
         document.getElementById('resultado')!.innerText = "Pessoa incluída com sucesso!";
-        document.getElementById('erro')!.innerText = "";
-        (document.getElementById('pessoaForm') as HTMLFormElement).reset();
-        this.carregarPessoas(); // Recarrega a lista de pessoas
+        this.resetForm();
+        this.carregarPessoas();
       },
       error: (error) => {
         console.error('Erro ao incluir pessoa:', error);
@@ -95,12 +101,17 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  pesquisar() {
-    const nome = (document.getElementById('pesquisarNome') as HTMLInputElement).value;
+  pesquisar(nome: string) {
     this.pessoaService.getPessoaByNome(nome).subscribe({
       next: (data) => {
         if (data) {
-          this.pessoas = [data]; // Atualiza a lista de pessoas com o resultado da pesquisa
+          this.nome = data.nome;
+          this.dataNasc = data.dataNasc.toISOString().split('T')[0];
+          this.cpf = data.cpf;
+          this.altura = data.altura;
+          this.peso = data.peso;
+          this.sexo = data.sexo;
+
           this.filteredNomes = [data.nome];
         } else {
           this.filteredNomes = ["não encontrado"];
@@ -111,5 +122,36 @@ export class HomeComponent implements OnInit {
         this.filteredNomes = ["não encontrado"];
       }
     });
+  }
+
+  resetForm() {
+    this.nome = '';
+    this.dataNasc = '';
+    this.cpf = '';
+    this.altura = null;
+    this.peso = null;
+    this.sexo = '';
+    this.filteredNomes = [];
+
+    const form = document.getElementById('pessoaForm') as HTMLFormElement;
+    if (form) {
+        form.reset();
+    }
+  }
+
+  alterar() {
+    // Implementar lógica de alteração
+  }
+
+  excluir() {
+    // Implementar lógica de exclusão
+  }
+
+  calcularPesoIdeal() {
+    // Implementar lógica de cálculo de peso ideal
+  }
+
+  fecharPesoIdeal() {
+    // Implementar lógica para fechar a modal de peso ideal
   }
 }
