@@ -17,27 +17,20 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.pesquisa input[type="text"] {
-  flex: 1;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  position: relative; /* Para posicionar a lista de sugestões */
 }
 
 ul#nomesSugestoes {
   list-style-type: none;
   padding: 0;
-  margin: 5px 0 0;
-  max-height: 150px;
-  overflow-y: auto;
+  margin: 75px 100px 0; /* Ajuste a distância acima da lista de sugestões */
+  max-height: 150px; /* Altura máxima da lista */
+  overflow-y: auto; /* Rolagem se necessário */
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: #fff;
-  position: absolute;
-  width: 100%;
+  position: absolute; /* Para posicionar abaixo do campo de pesquisa */
+  width: calc(100% - 200px); /* Ajuste a largura conforme necessário */
   z-index: 10;
   display: none; /* Inicialmente oculto */
 }
