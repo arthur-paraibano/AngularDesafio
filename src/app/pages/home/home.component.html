@@ -14,7 +14,8 @@
 
         <div class="pesquisa">
             <label for="pesquisarNome">Pesquisar por Nome:</label>
-            <input type="text" id="pesquisarNome" name="pesquisarNome" (input)="onInputChange($event)" placeholder="Digite o nome">
+            <input type="text" id="pesquisarNome" name="pesquisarNome" [(ngModel)]="nome"
+                (input)="onInputChange($any($event.target).value)" placeholder="Digite o nome" />
             <button type="button" class="btn-continuar" (click)="pesquisar(nome)">Continuar</button>
             <ul id="nomesSugestoes" [class.visible]="filteredNomes.length > 0">
                 <li *ngFor="let nome of filteredNomes" (click)="selecionarNome(nome)">
@@ -22,6 +23,8 @@
                 </li>
             </ul>
         </div>
+
+        <hr>
 
         <form id="pessoaForm" #pessoaForm="ngForm">
             <div class="form-group">
@@ -61,9 +64,12 @@
             <hr>
 
             <div class="button-group">
-                <button type="button" (click)="incluir()">Incluir</button>
-                <button type="button" id="btnAlterar" (click)="alterar()" disabled>Alterar</button>
-                <button type="button" id="btnExcluir" (click)="excluir()" disabled>Excluir</button>
+                <button *ngIf="!isPesquisaBemSucedida" (click)="incluir()">Incluir</button>
+                <button *ngIf="isPesquisaBemSucedida" (click)="voltar()">Voltar</button>
+                <button [disabled]="!isPesquisaBemSucedida" [class.disabled]="!isPesquisaBemSucedida"
+                    (click)="alterar()">Alterar</button>
+                <button [disabled]="!isPesquisaBemSucedida" [class.disabled]="!isPesquisaBemSucedida"
+                    (click)="excluir()">Excluir</button>
                 <button type="button" (click)="calcularPesoIdeal()">Calcular Peso Ideal</button>
             </div>
 
@@ -75,6 +81,17 @@
         <div id="pesoIdealResultado" class="peso-ideal" style="display: none;">
             <p id="resultadoPesoIdeal"></p>
             <button (click)="fecharPesoIdeal()">OK</button>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div id="confirmationModal" class="modal" *ngIf="isModalVisible">
+        <div class="modal-content">
+            <h3>{{ modalMessage }}</h3>
+            <div class="modal-buttons">
+                <button (click)="confirmAction()">Confirmar</button>
+                <button (click)="cancelAction()">Cancelar</button>
+            </div>
         </div>
     </div>
 
