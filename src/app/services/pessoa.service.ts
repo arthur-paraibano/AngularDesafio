@@ -12,14 +12,6 @@ export class PessoaServiceService {
 
   constructor(private http: HttpClient) {}
 
-  // getAllPessoas(): Observable<PessoaModel> {
-  //   this.pessoaDado = this
-  //                         .http
-  //                         .get<PessoaModel>
-  //                         (`${this.baseUrl}/all`);
-  //   return this.pessoaDado
-  // }
-
   getAllPessoas(): Observable<any> {
     return this.http.get(`${this.baseUrl}/all`);
   }
@@ -33,7 +25,6 @@ export class PessoaServiceService {
   }
 
   createPessoa(pessoa: Object): Observable<Object> {
-    console.log(pessoa);
     return this.http.post(`${this.baseUrl}/add`, pessoa);
   }
 
